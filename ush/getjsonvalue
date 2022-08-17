@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+# Utility to print JSON entry values, either from stdin or from a file.
+# Usage:
+#  $ printsomejsonstuff | getjsonvalue myfirstattribute mysecondattribute
+# OR
+#  $ getjsonvalue myjsonfile myfirstattribute mysecondattribute
+
+import json, sys
+
+if sys.stdin.isatty():
+  filename = sys.argv[1]
+  keys = sys.argv[2:]
+  with open(filename,"r") as f:
+    rawjson = json.load(f)
+else:
+  keys = sys.argv[1:]
+  rawjson = sys.stdin.read()
+
+d = json.loads(rawjson)
+
+value = eval("d['%s']"%"']['".join(keys))
+
+if type(value) is str: print(value)
+else: print(json.dumps(value,indent=4))

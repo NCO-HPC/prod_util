@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+
+import argparse
+
+parser = argparse.ArgumentParser(description="Return WCOSS2 system information. Prints system name (cactus, dogwood) by default.")
+parser.add_argument("--opposite","-o",action="store_true",help="Return information for opposite site (default: same site)")
+parser.add_argument("--firstletter","-f",action="store_true",help="Return first letter of site name (disables phase option; default: full name)")
+#parser.add_argument("--type","-t",action="store_true",help="Return system type (wcoss2)")
+parser.add_argument("--phase","-p",action="store_true",help="Return phase (e.g., p1)")
+parser.add_argument("--system","-s",action="store_true",help="Return system name (e.g., cactus) when retrieving phase")
+
+currentsitegroup = parser.add_mutually_exclusive_group()
+currentsitegroup.add_argument("--production","--prod",action="store_true",help="Return name of current production site (disables other options except -f; default: get system name for current host)")
+currentsitegroup.add_argument("--backup","--development","--dev",action="store_true",help="Return name of current production site (disables other options except -f; default: get system name for current host)")
+
+args = parser.parse_args()
+
+import sys
+
+if args.production or args.backup:
+  import os, re
+  pmf = os.getenv("PRODMACHINEFILE")
+  pmf = pmf if pmf else "/lfs/h1/ops/prod/config/prodmachinefile"
+  machines = open(pmf,"r").read()
+  if args.production: systemname = re.findall("primary:(\w+)",machines)[0]
+  if args.backup: systemname = re.findall("backup:(\w+)",machines)[0]
+  if args.firstletter: print(systemname[0],end="")
+  else: print(systemname,end="")
+  sys.exit()
+
+import socket
+
+###############################################################################
+### SITE CONFIGURATION (iprange gives range of third digits):
+phases = [
+{"systemname":"Acorn","phase":"p1","site":"Acorn","iprange":(0,63)},
+{"systemname":"Dogwood","phase":"p1","site":"Phoenix","iprange":(64,127)},
+{"systemname":"Cactus","phase":"p1","site":"Manassas","iprange":(128,254)},
+]
+
+opposites = {"Cactus":"Dogwood","Dogwood":"Cactus","Acorn":"Acorn"}
+###############################################################################
+
+hostname = socket.gethostname()
+ip = socket.gethostbyname(hostname)
+ipthirdnumber = int(ip.split(".")[2])
+
+for phase in phases:
+  if (ipthirdnumber>=phase["iprange"][0]) and (ipthirdnumber<=phase["iprange"][1]):
+    phaseinfo = phase
+    break
+
+phase = phaseinfo["phase"]
+systemname = phaseinfo["systemname"]
+
+if args.opposite:
+  systemname = opposites[systemname]
+
+if args.firstletter:
+  print(systemname[0],end="")
+  sys.exit()
+
+#if not (args.type or args.phase):
+if not args.phase:
+  print(systemname,end="")
+  sys.exit()
+
+print(systemname+"-"+phase,end="")

@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# SCRIPT NAME:  err_check
+#
+# ABSTRACT:  This script checks a return code in $err.  If $err=0
+# a message that the program completed is put in the job outputfile and
+# in a log file.  If $err != 0 then fail messages are put in job 
+# output file and the job is terminated.
+# 
+# USAGE:  To use this script one must export the following variables
+# to the script:  err, pgm, pgmout, jobid
+
+if [ -z "$err" ]; then err_exit "RETURN CODE NOT EXPORTED prior to running err_chk" ; exit ; fi
+if [ $err -eq 0 ]; then echo "$pgm completed cleanly" ; exit ; fi
+
+#  If error return code is 139, then program segfaulted.
+#  Look for any core files, and save them to a directory in /ptmp
+if [ $err -eq 139 ]; then
+  if [ -z "$COREROOT" ]; then
+    >&2 echo "SegFault reported but \$COREROOT variable not set. Will not copy files."
+  else
+    >&2 echo "SegFault reported. Copying core files to ${COREROOT}"
+    cd $DATA
+    if [ -s core ]; then
+      mkdir -p ${COREROOT}
+      cp -p core ${COREROOT}/$pgm.$$.core
+    elif [ -s core.* ]; then
+      mkdir -p ${COREROOT}
+      cp -p core.* ${COREROOT}/
+    fi 
+    for coredir in `ls -d coredir.*`; do
+      mkdir -p ${COREROOT}/$coredir
+      cp -p ${coredir}/* ${COREROOT}/${coredir}/
+    done
+  fi
+fi
+err_exit $@

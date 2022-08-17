@@ -1,0 +1,66 @@
+#!/bin/sh
+# Script name : para dbn_alert
+# Script description:  This script will alert file out with proper alert type 
+#                      "_PARA" and check the file path; it will not alert any
+#                      file in the wmo directory; also it will not alert file out if a
+#                      file does not exist.
+#
+echo PARA dbn_alert in:  $*
+
+#if [ "$SENDDBN_LOG" = YES ]
+#then
+#   outDir=${COMOUT:-${COMROOT}/output/$envir/today}
+#   logFile=$outDir/$job.$PDY.dbnlog
+#   echo PARA dbn_alert $* >> $logFile
+#fi
+
+#dev_machine=`cat /etc/dev | cut -c1`
+#host_machine=`hostname | cut -c1`
+#
+#if [ "$host_machine" == "$dev_machine" ]
+#then
+#   echo "WARNING: this dbn_alert is on DEV WCOSS and it will NOT be sent."
+#   exit
+#fi
+
+if [ $# != 4 ]; then
+   echo "ERROR: Four arguments required (only $# were provided), please check script!"
+   exit
+fi
+
+if [ ! -s $4 ]; then
+   echo "ERROR: $4 does not exist!  Alert will not be sent."
+else
+   echo $4 | grep wmo
+   if [ $? != 0 ]; then
+      echo $2 | grep _PARA
+      if [ $? != 0 ]; then
+         NEW_SUBTYPE=${2}_PARA
+      fi
+   elif [[ "$1" == TEXT ]] || [[ "$1" == GRIB_HIGH ]] || [[ "$1" == GRIB_LOW ]] || [[ "$1" == NTC_HIGH ]] || [[ "$1" == NTC_LOW ]] || [[ "$1" == AFOS ]] || [[ "$1" == MODEL ]]; then
+      NEW_TYPE=SBN_EVAL
+      echo "NOTE: wmo file will be alerted with type SBN_EVAL"
+   else
+      echo "WARNING: wmo alert type not recognized. The file will NOT be alerted!"
+      exit
+   fi
+   echo "PARA dbn_alert out:  ${NEW_TYPE:-$1} ${NEW_SUBTYPE:-$2} $3 $4"
+   export SIPHONROOT=/lfs/h1/ops/prod/dbnet_siphon
+   export DBNROOT=$SIPHONROOT
+   $SIPHONROOT/bin/dbn_alert ${NEW_TYPE:-$1} ${NEW_SUBTYPE:-$2} $3 $4
+
+if [ "${DBNLOG^^}" == "YES" ]; then
+   eval "ver=\${${NET}_ver}"
+   outputdir=$(compath.py -o ${NET?"NET must be defined"}/${ver?"Version must be set as variable <NET>_ver"}/${RUN?"RUN must be defined"}.${PDY?"PDY must be defined"}/dbnlogs/)
+   mkdir -p ${outputdir?"\$outputdir not set. compath.py failed."}
+   log_file=${outputdir}/${job:?}.${PDY}${cyc}.dbnlog
+   echo "["$(date +%T)"]" $* >> $log_file
+fi
+
+#   if [ "${DBNLOG^^}" == "YES" ]; then
+#     log_file=${COMOUT:-${COMROOT:?}/output/${envir:?}/today}/${job:?}.${PDY}${cyc}.dbnlog
+#     echo "["$(date +%T)"]" ${NEW_TYPE:-$1} ${NEW_SUBTYPE:-$2} $3 $4 >> $log_file
+#   fi
+
+fi
+
