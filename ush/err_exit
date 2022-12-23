@@ -51,15 +51,34 @@ elif [ -s errfile ]; then
   >&2 cat errfile
 fi
 
-# Write to ecflow log:
+# Write to ecflow log w/ ecflow_client:
 if [ "$SENDECF" = "YES" ]; then
+ echo "Killing the job via ecflow comands"
   timeout 30 ecflow_client --msg "$ECF_NAME: $msg1"
   timeout 30 ssh $ECF_HOST "echo \"$msg2\" >> ${ECF_JOBOUT:?}"
+
+  if [ -z $PBS_JOBID ]; then
+      echo "Killing the job via ecflow kill"
+      ecflow_client --kill=${ECF_NAME:?}
+  else
+      echo "Killing the job via qdel"    
+      qdel $PBS_JOBID
+  fi
+  
+  
+else
+    # Kill job directly if not using ecflow
+   if [ -n "$SLURM_JOBID" ]; then
+        echo "Killing the job via scancel"
+	scancel "$SLURM_JOBID"
+    elif [ -n "$LSF_JOBID" ]; then
+        echo "Killing the job via bkill"
+	bkill "$LSF_JOBID"
+	
+    else
+	exit "${err:-1}"
+    fi
 fi
 
-# KILL THE JOB:
-if [ -z $PBS_JOBID ]; then
-ecflow_client --kill=${ECF_NAME:?}
-else
-qdel $PBS_JOBID
-fi
+
+
