@@ -28,7 +28,7 @@ if [ $# != 4 ]; then
    exit
 fi
 
-if [ ! -s $4 ]; then
+if [ ! -f $4 ]; then
    echo "ERROR: $4 does not exist!  Alert will not be sent."
 else
    echo $4 | grep wmo
