@@ -1,7 +1,6 @@
 help([[Set environment variables for production utilities
 ]])
 
---[ local base = myFileName():gsub("/modulefiles.*","") --]
 local pkgName = myModuleName()
 local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
