@@ -1,8 +1,6 @@
 help([[Set environment variables for production utilities
 ]])
 
-conflict(pkgName)
-
 --[ local base = myFileName():gsub("/modulefiles.*","") --]
 local pkgName = myModuleName()
 local pkgVersion = myModuleVersion()
@@ -11,6 +9,7 @@ local hierA        = hierarchyA(pkgNameVer,1)
 local compNameVer  = hierA[1]
 local opt = os.getenv("PROD_UTIL") 
 local optdir = pathJoin(opt)
+conflict(pkgName)
 
 if ( isDir(opt) ) then
         base = opt
