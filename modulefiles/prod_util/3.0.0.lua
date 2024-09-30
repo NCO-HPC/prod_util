@@ -17,13 +17,6 @@ else
         setenv("PROD_UTIL",base)
 end
 
-if ( isDir("/lfs/h1/ops/prod") ) then 
-        --[ Verify if system is WCOSS, dogwood or cactus, and set root dirs. --]
-        setenv("COMDATEROOT","/lfs/h1/ops/prod/com")
-        setenv("COMLISTROOT","/lfs/h1/ops/prod/config")
-        setenv("COMLOGSROOT","/lfs/h1/ops/prod/com")
-end
-
 setenv("UTILROOT", base)
 setenv("MDATE",pathJoin(base,"exec/mdate"))
 setenv("NDATE",pathJoin(base,"exec/ndate"))
@@ -31,6 +24,13 @@ setenv("NHOUR",pathJoin(base,"exec/nhour"))
 setenv("FSYNC",pathJoin(base,"exec/fsync_file"))
 prepend_path("PATH",pathJoin(base,"ush"))
 prepend_path("PYTHONPATH",pathJoin(base,"ush"))
+
+if ( isDir("/lfs/h1/ops/prod") ) then 
+        --[ Verify if system is WCOSS, dogwood or cactus, and set root dirs. --]
+        setenv("COMDATEROOT","/lfs/h1/ops/prod/com")
+        setenv("COMLISTROOT","/lfs/h1/ops/prod/config")
+        setenv("COMLOGSROOT","/lfs/h1/ops/prod/com")
+end
 
 whatis("Name: ".. pkgName)
 whatis("Version: " .. pkgVersion)
