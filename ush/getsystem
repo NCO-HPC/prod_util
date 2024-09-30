@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# This utility prints WCOSS2 system information based on the system where it is run.
+# Default behavior is to print system name ('cactus', 'dogwood').
+# Use 'getsystem --help' for command line option info.
+
+# Alex Richert, March 2023
+
 import argparse
 
 parser = argparse.ArgumentParser(description="Return WCOSS2 system information. Prints system name (cactus, dogwood) by default.")

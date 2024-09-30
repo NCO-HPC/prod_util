@@ -2,7 +2,7 @@
 
 # SCRIPT NAME:  err_exit
 #
-# ABSTRACT:  This script is to be used when a fatal error or condition
+# ABSTRACT:  This script is to be used when a fatal error or condition 
 # has been reached and you want to terminate the job.
 #
 # USAGE:  To use this script one must export the following variables to the
@@ -58,8 +58,12 @@ if [ "$SENDECF" = "YES" ]; then
 fi
 
 # KILL THE JOB:
-if [ -z $PBS_JOBID ]; then
-ecflow_client --kill=${ECF_NAME:?}
-else
-qdel $PBS_JOBID
+if [ "$SENDECF" = "YES" ]; then
+  ecflow_client --kill=${ECF_NAME:?}
+fi
+
+if [ ! -z $PBS_JOBID ]; then
+  qdel $PBS_JOBID
+elif [ ! -z $SLURM_JOB_ID ]; then
+  scancel $SLURM_JOB_ID
 fi
