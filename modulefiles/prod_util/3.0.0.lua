@@ -12,11 +12,10 @@ conflict(pkgName)
 
 if ( isDir(opt) ) then
         base = opt
-        if ( mode() == "show" ) then
-                LmodMessage("PROD_UTIL",base)
-        end
+        setenv("PROD_UTIL",base)
 else
         base = myFileName():gsub("/modulefiles.*","")
+        setenv("PROD_UTIL",base)
 end
 
 if ( isDir("/lfs/h1/ops/prod") ) then 
