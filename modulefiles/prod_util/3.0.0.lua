@@ -12,7 +12,6 @@ conflict(pkgName)
 
 if ( isDir(opt) ) then
         base = opt
-        setenv("PROD_UTIL",base)
 else
         base = myFileName():gsub("/modulefiles.*","")
         setenv("PROD_UTIL",base)
