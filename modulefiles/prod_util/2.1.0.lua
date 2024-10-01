@@ -14,7 +14,6 @@ if ( isDir(opt) ) then
         base = opt
 else
         base = capture("readlink -f ."):gsub("\n$","")
-        setenv("PROD_UTIL",base)
 end
 
 setenv("UTILROOT", base)
