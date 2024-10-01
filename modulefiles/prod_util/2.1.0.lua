@@ -13,7 +13,7 @@ conflict(pkgName)
 if ( isDir(opt) ) then
         base = opt
 else
-        base = myFileName():gsub("/modulefiles.*","")
+        base = capture("readlink -f ."):gsub("\n$","")
         setenv("PROD_UTIL",base)
 end
 
