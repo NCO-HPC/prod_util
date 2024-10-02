@@ -7,7 +7,6 @@ local pkgNameVer = myModuleFullName()
 local hierA        = hierarchyA(pkgNameVer,1)
 local compNameVer  = hierA[1]
 local opt = os.getenv("PROD_UTIL") 
-local optdir = pathJoin(opt)
 conflict(pkgName)
 
 if ( isDir(opt) ) then
